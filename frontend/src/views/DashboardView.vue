@@ -363,8 +363,6 @@ import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../stores/auth'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-
 const authStore = useAuthStore()
 const dogs = ref([])
 const loading = ref(false)
@@ -416,7 +414,7 @@ const fetchDogs = async () => {
     params.sortBy = filters.sortBy
     params.order = filters.order
 
-    const response = await axios.get(`${API_URL}/dogs`, { params })
+    const response = await axios.get(`/dogs`, { params })
     dogs.value = response.data
     calculateStats()
   } catch (err) {
@@ -489,10 +487,10 @@ const resetForm = () => {
 const submitForm = async () => {
   try {
     if (isEditing.value) {
-      await axios.put(`${API_URL}/dogs/${selectedDogId.value}`, formData)
+      await axios.put(`/dogs/${selectedDogId.value}`, formData)
       showNotification('success', 'Dog record updated successfully.')
     } else {
-      await axios.post(`${API_URL}/dogs`, formData)
+      await axios.post(`/dogs`, formData)
       showNotification('success', 'Dog record added successfully.')
     }
     closeModal()
@@ -506,7 +504,7 @@ const submitForm = async () => {
 const handleDelete = async (id) => {
   if (!confirm('Are you sure you want to delete this dog record?')) return
   try {
-    await axios.delete(`${API_URL}/dogs/${id}`)
+    await axios.delete(`/dogs/${id}`)
     showNotification('success', 'Dog record deleted successfully.')
     fetchDogs()
   } catch (err) {
