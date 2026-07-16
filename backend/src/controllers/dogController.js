@@ -1,9 +1,9 @@
 const db = require('../config/db');
 
-// Get all dogs (with filtering, sorting, searching)
+// Get all dogs (with filtering, sorting, searching, pagination)
 exports.getAllDogs = async (req, res) => {
   try {
-    const { name, gender, color, breed, status, sortBy, order } = req.query;
+    const { name, gender, color, breed, status, sortBy, order, minAge, maxAge, address, page, limit } = req.query;
 
     let query = 'SELECT * FROM dogs WHERE 1=1';
     const queryParams = [];
@@ -38,6 +38,30 @@ exports.getAllDogs = async (req, res) => {
       queryParams.push(status);
     }
 
+    // Filter by age range
+    if (minAge !== undefined && minAge !== '') {
+      query += ' AND age >= ?';
+      queryParams.push(Number(minAge));
+    }
+    if (maxAge !== undefined && maxAge !== '') {
+      query += ' AND age <= ?';
+      queryParams.push(Number(maxAge));
+    }
+
+    // Filter by address (search location)
+    if (address) {
+      query += ' AND address LIKE ?';
+      queryParams.push(`%${address}%`);
+    }
+
+    // Get total matching count for pagination
+    let totalItems = 0;
+    const [countResult] = await db.query(
+      query.replace('SELECT *', 'SELECT COUNT(*) as total'),
+      queryParams
+    );
+    totalItems = countResult[0].total;
+
     // Sort configurations
     const validSortFields = ['name', 'age', 'breed', 'status', 'created_at'];
     const validOrders = ['ASC', 'DESC'];
@@ -46,6 +70,24 @@ exports.getAllDogs = async (req, res) => {
     const sortOrder = validOrders.includes(order?.toUpperCase()) ? order.toUpperCase() : 'DESC';
 
     query += ` ORDER BY ${sortField} ${sortOrder}`;
+
+    // Handle pagination (if page or limit parameters are specified)
+    if (page !== undefined || limit !== undefined) {
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.max(1, parseInt(limit) || 12);
+      const offset = (pageNum - 1) * limitNum;
+
+      query += ' LIMIT ? OFFSET ?';
+      queryParams.push(limitNum, offset);
+
+      const totalPages = Math.ceil(totalItems / limitNum);
+
+      // Expose headers for pagination
+      res.setHeader('X-Total-Count', totalItems);
+      res.setHeader('X-Total-Pages', totalPages);
+      res.setHeader('X-Current-Page', pageNum);
+      res.setHeader('X-Page-Limit', limitNum);
+    }
 
     const [dogs] = await db.query(query, queryParams);
     res.json(dogs);
