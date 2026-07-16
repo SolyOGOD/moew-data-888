@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-// Define the API URL (can be customized for dev/prod environment)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
@@ -31,7 +28,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`${API_URL}/auth/login`, { username, password })
+        const response = await axios.post(`/auth/login`, { username, password })
         const { token, user } = response.data
         
         this.token = token
@@ -55,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        await axios.post(`${API_URL}/auth/register`, { username, email, password })
+        await axios.post(`/auth/register`, { username, email, password })
         return true
       } catch (err) {
         this.error = err.response?.data?.message || 'Registration failed. Please try again.'
