@@ -12,6 +12,6 @@ vue + vite + tailwindcss + daisyui
 ฟิลเตอร์ด้วย เพศ / สี / อายุ / พันธ์ / ที่อยู่ / สถานะ
 เเสดงผล card / table
 
-docker + docker-compose ( ทำ dockerfile ทะ้ง backend เเละ  frontend ให้ด้วย)
+docker + docker-compose ( ทำ dockerfile ทั้ง backend เเละ  frontend ให้ด้วย)
 
 github collab เเบ่ง branch ในการทำงาน ในทีมมีสมาชิก 2 คน 
