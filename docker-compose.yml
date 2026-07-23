@@ -56,6 +56,18 @@ services:
     depends_on:
       - backend
 
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: dog-phpmyadmin
+    restart: always
+    ports:
+      - "8085:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:
-
