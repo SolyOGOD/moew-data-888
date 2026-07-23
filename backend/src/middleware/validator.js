@@ -47,7 +47,7 @@ exports.validateLogin = (req, res, next) => {
   const errors = [];
 
   if (!username || typeof username !== 'string' || username.trim() === '') {
-    errors.push('Username is required.');
+    errors.push('Username or email is required.');
   }
   if (!password || typeof password !== 'string' || password === '') {
     errors.push('Password is required.');
@@ -61,6 +61,7 @@ exports.validateLogin = (req, res, next) => {
     });
   }
 
+  req.body.username = username.trim();
   next();
 };
 
